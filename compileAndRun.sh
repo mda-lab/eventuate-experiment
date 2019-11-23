@@ -1,6 +1,4 @@
-pushd org.swfactory.acceleo.module.ddd.eventuate.parent && \
-  mvn clean install && \
-popd && \
+mvn clean install && \
 pushd org.swfactory.ddd.restaurant/restaurant && \
   rm -rf app/src be/src public/src rest/src && \
 popd && \

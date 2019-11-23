@@ -5,9 +5,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.List;
 import java.util.Set;
-
-import org.swfactory.ddd.restaurant.restaurant.infos.MenuInfo;
 import org.swfactory.ddd.restaurant.restaurant.infos.TableInfo;
+import org.swfactory.ddd.restaurant.restaurant.infos.MenuInfo;
+
 
 /**
 * @generated
@@ -68,23 +68,6 @@ public class RestaurantInfo {
   /**
   * @generated
   */
-  private List<TableInfo> tables;
-  /**
-  * @generated
-  */
-  public List<TableInfo> getTables() {
-    return this.tables;
-  }
-  /**
-  * @generated
-  */
-  public void setTables(List<TableInfo> tables) {
-    this.tables = tables;
-  }
-  
-  /**
-  * @generated
-  */
   private List<MenuInfo> menu;
   /**
   * @generated
@@ -97,6 +80,23 @@ public class RestaurantInfo {
   */
   public void setMenu(List<MenuInfo> menu) {
     this.menu = menu;
+  }
+  
+  /**
+  * @generated
+  */
+  private List<TableInfo> tables;
+  /**
+  * @generated
+  */
+  public List<TableInfo> getTables() {
+    return this.tables;
+  }
+  /**
+  * @generated
+  */
+  public void setTables(List<TableInfo> tables) {
+    this.tables = tables;
   }
   
 
