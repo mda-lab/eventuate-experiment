@@ -1,0 +1,94 @@
+[comment encoding = UTF-8 /]
+[module generateClassEvent('http://www.eclipse.org/uml2/5.0.0/UML')]
+
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+[template private generateAggregateRootProperty(aClass : Class, prefix : String)]
+[aClass.genGeneratedComment()/]
+private [aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/];
+
+[aClass.genGeneratedComment()/]
+public [aClass.genNameClassEvent(prefix)/]([aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/]) {
+  this.[aClass.genNameClassInfo().toLowerFirst()/] = [aClass.genNameClassInfo().toLowerFirst()/];
+}
+
+[aClass.genGeneratedComment()/]
+public [aClass.genNameClassInfo()/] get[aClass.genNameClassInfo()/]() {
+  return [aClass.genNameClassInfo().toLowerFirst()/];
+}
+
+[aClass.genGeneratedComment()/]
+public void set[aClass.genNameClassInfo()/]([aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/]) {
+  this.[aClass.genNameClassInfo().toLowerFirst()/] = [aClass.genNameClassInfo().toLowerFirst()/];
+}
+[/template]
+
+[template public generateEventClass(aClass : Class)]
+[file (aClass.genFilePathClassEvent(''), false)]
+package [aClass.packageValueClassEvent()/];
+
+import io.eventuate.Event;
+import io.eventuate.EventEntity;
+
+@EventEntity(entity="[aClass.genQualifiedNameClassAggregate()/]")
+[aClass.genGeneratedComment()/]
+public abstract class [aClass.genNameClassEvent('')/] implements Event {
+}
+[/file]
+[/template]
+
+[template public generateToStringEvent(aClass : Class)]
+[aClass.genGeneratedComment()/]
+@Override
+public String toString() {
+  return ToStringBuilder.reflectionToString(this);
+}
+[/template]
+[template public generateCreateEventClass(aClass : Class)]
+[file (aClass.genFilePathClassEvent('Created'), false)]
+package [aClass.packageValueClassEvent()/];
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+[aClass.renderImportEvent()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassEvent('Created')/]  extends [aClass.genNameClassEvent('')/] {
+    [aClass.genGeneratedComment()/]
+    public [aClass.genNameClassEvent('Created')/]() {
+    }
+    [aClass.generateAggregateRootProperty('Created')/]
+    [aClass.generateToStringEvent()/]
+}
+[/file]
+[/template]
+
+[template public generateDeleteEventClass(aClass : Class)]
+[file (aClass.genFilePathClassEvent('Deleted'), false)]
+package [aClass.packageValueClassEvent()/];
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+[aClass.renderImportEvent()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassEvent('Deleted')/]  extends [aClass.genNameClassEvent('')/] {
+}
+[/file]
+[/template]
+
+[template public generateUpdateEventClass(aClass : Class)]
+[file (aClass.genFilePathClassEvent('Updated'), false)]
+package [aClass.packageValueClassEvent()/];
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+[aClass.renderImportEvent()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassEvent('Updated')/]  extends [aClass.genNameClassEvent('')/] {
+	[aClass.genGeneratedComment()/]
+    public [aClass.genNameClassEvent('Updated')/]() {
+    }
+    [aClass.generateAggregateRootProperty('Updated')/]
+    [aClass.generateToStringEvent()/]
+}
+[/file]
+[/template]

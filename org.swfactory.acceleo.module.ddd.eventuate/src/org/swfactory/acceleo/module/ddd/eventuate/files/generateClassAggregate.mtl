@@ -1,0 +1,86 @@
+[comment encoding = UTF-8 /]
+[module generateClassAggregate('http://www.eclipse.org/uml2/5.0.0/UML')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+
+[template private generateAggregateRootProperty(aClass : Class)]
+[aClass.genGeneratedComment()/]
+private [aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/];
+
+[aClass.genGeneratedComment()/]
+public [aClass.genNameClassInfo()/] get[aClass.genNameClassInfo()/]() {
+  logger.info("Get [aClass.name/]: " + (this.[aClass.genNameClassInfo().toLowerFirst()/] == null ? "null" : this.[aClass.genNameClassInfo().toLowerFirst()/].toString()));
+  return [aClass.genNameClassInfo().toLowerFirst()/];
+}
+
+[aClass.genGeneratedComment()/]
+public void set[aClass.genNameClassInfo()/]([aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/]) {
+  this.[aClass.genNameClassInfo().toLowerFirst()/] = [aClass.genNameClassInfo().toLowerFirst()/];
+}
+[/template]
+
+[template public generateClassAggregate(aClass : Class)]
+[file (aClass.genFilePathClassAggregate(), false)]
+package [aClass.packageValueClassAggregate()/];
+
+import io.eventuate.Event;
+import io.eventuate.EventUtil;
+import io.eventuate.ReflectiveMutableCommandProcessingAggregate;
+[aClass.renderImportAggregate()/]
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassAggregate()/]  extends ReflectiveMutableCommandProcessingAggregate<[aClass.genNameClassAggregate()/], [aClass.genNameClassCommand('')/]> {
+	private static Log logger = LogFactory.getLog([aClass.genNameClassAggregate()/].class);
+    private boolean deleted = false;
+    [aClass.generateAggregateRootProperty()/]
+    [aClass.genGeneratedComment()/]
+    public List<Event> process([aClass.genNameClassCommand('Create')/] cmd) {
+    	logger.info("Process: " + cmd.getClass().getSimpleName());
+        return EventUtil.events(new [aClass.genNameClassEvent('Created')/](cmd.get[aClass.genNameClassInfo()/]()));
+    }
+
+    [aClass.genGeneratedComment()/]
+    public List<Event> process([aClass.genNameClassCommand('Update')/] cmd) {
+    	logger.info("Process: " + cmd.getClass().getSimpleName());
+        if(!this.deleted) {
+            return EventUtil.events(new [aClass.genNameClassEvent('Updated')/](cmd.get[aClass.genNameClassInfo()/]()));
+        }
+        return new ArrayList<>();
+    }
+
+    [aClass.genGeneratedComment()/]
+    public List<Event> process([aClass.genNameClassCommand('Delete')/] cmd) {
+    	logger.info("Process: " + cmd.getClass().getSimpleName());
+        if(!this.deleted) {
+            return EventUtil.events(new [aClass.genNameClassEvent('Deleted')/]());
+        }
+        return new ArrayList<>();
+    }
+
+    [aClass.genGeneratedComment()/]
+    public void apply([aClass.genNameClassEvent('Created')/] event) {
+    	logger.info("Apply: " + event.getClass().getSimpleName());
+        this.[aClass.genNameClassInfo().toLowerFirst()/] = event.get[aClass.genNameClassInfo()/]();
+    }
+
+    [aClass.genGeneratedComment()/]
+    public void apply([aClass.genNameClassEvent('Updated')/] event) {
+    	logger.info("Apply: " + event.getClass().getSimpleName());
+        this.[aClass.genNameClassInfo().toLowerFirst()/] = event.get[aClass.genNameClassInfo()/]();
+    }
+
+    [aClass.genGeneratedComment()/]
+    public void apply([aClass.genNameClassEvent('Deleted')/] event) {
+    	logger.info("Apply: " + event.getClass().getSimpleName());
+        this.deleted = true;
+    }
+
+}
+[/file]
+[/template]

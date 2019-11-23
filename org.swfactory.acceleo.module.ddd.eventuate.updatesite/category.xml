@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.swfactory.acceleo.module.ddd.eventuate.feature_1.0.0.qualifier.jar" id="org.swfactory.acceleo.module.ddd.eventuate.feature" version="1.0.0.qualifier">
+      <category name="org.swfactory.acceleo.module.ddd.eventuate.category.id"/>
+   </feature>
+   <category-def name="org.swfactory.acceleo.module.ddd.eventuate.category.id" label="Acceleo"/>
+</site>

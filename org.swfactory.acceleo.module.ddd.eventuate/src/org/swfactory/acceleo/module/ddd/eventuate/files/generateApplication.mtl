@@ -1,0 +1,37 @@
+[comment encoding = UTF-8 /]
+[module generateApplication('http://www.eclipse.org/uml2/5.0.0/Types', 'http://www.eclipse.org/uml2/5.0.0/UML', 'http://www.eclipse.org/uml2/5.0.0/UML/Profile/Standard')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+[template public generateApplication(aType : Type)]
+[comment]TODO: 
+    eseguire se e solo il package ha stereotype 'BoundedContext'
+    parametrizzare il nome del package da utilizzare per generare le classi configuration (like AndroMDA)
+[/comment]
+[file (aType.genFilePathApplication(), false, 'UTF-8')]
+package [aType.packageValueApplication()/];
+
+import io.eventuate.javaclient.driver.EventuateDriverConfiguration;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+[aType.renderImportApplication()/]
+
+[aType.genGeneratedComment()/]
+@Configuration
+@Import({[aType.genNameClassAggregateWebConfiguration()/].class,
+        EventuateDriverConfiguration.class,
+        [aType.genNameClassSwaggerConfiguration()/].class})
+@EnableAutoConfiguration
+@ComponentScan
+public class [aType.genNameApplication()/] {
+
+  [aType.genGeneratedComment()/]
+  public static void main(String['['/] [']'/] args) {
+    SpringApplication.run([aType.genNameApplication()/].class, args);
+  }
+}
+
+[/file]
+[/template]

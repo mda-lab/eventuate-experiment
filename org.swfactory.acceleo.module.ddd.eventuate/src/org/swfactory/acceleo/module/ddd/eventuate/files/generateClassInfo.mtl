@@ -1,0 +1,41 @@
+[comment encoding = UTF-8 /]
+[module generateClassInfo('http://org.swfactory.ddd.profile', 'http://www.eclipse.org/uml2/5.0.0/UML','http://www.eclipse.org/uml2/5.0.0/Types', 'http://www.eclipse.org/uml2/5.0.0/UML/Profile/Standard')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+
+[template public generateClassInfo(aClass : Class)]
+[file (aClass.genFilePathClassInfo(), false)]
+package [aClass.packageValueClassInfo()/];
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import java.util.List;
+import java.util.Set;
+[aClass.renderImportsInfo()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassInfo()/] {
+  [aClass.renderPropertiesInfo()/]
+
+[for (o: Operation | aClass.ownedOperation) separator('\n')]
+  public [o.type.name/] [o.name/]() {
+       // TODO should be implemented
+  }
+[/for]
+  [aClass.renderCompositePropertiesInfo()/]
+
+  [aClass.genGeneratedComment()/]
+  @Override
+  public boolean equals(Object o) {
+    return EqualsBuilder.reflectionEquals(this, o);
+  }
+
+  [aClass.genGeneratedComment()/]
+  @Override
+  public int hashCode() {
+    return HashCodeBuilder.reflectionHashCode(this);
+  }
+}
+[/file]
+[/template]

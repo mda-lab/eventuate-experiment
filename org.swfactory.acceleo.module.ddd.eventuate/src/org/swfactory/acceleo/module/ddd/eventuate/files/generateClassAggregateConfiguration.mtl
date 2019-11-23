@@ -1,0 +1,74 @@
+[comment encoding = UTF-8 /]
+[module generateClassAggregateConfiguration('http://www.eclipse.org/uml2/5.0.0/UML')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+[template public generateClassAggregateConfiguration(aClass : Class)]
+[file (aClass.genFilePathClassAggregateConfiguration(), false)]
+package [aClass.packageValueClassAggregateConfiguration()/];
+
+import io.eventuate.AggregateRepository;
+import io.eventuate.EventuateAggregateStore;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+[aClass.renderImportAggregateConfiguration()/]
+
+[aClass.genGeneratedComment()/]
+@Configuration
+@ComponentScan
+public class [aClass.genNameClassAggregateConfiguration()/] {
+    [aClass.genGeneratedComment()/]
+    @Bean
+    public AggregateRepository<[aClass.genNameClassAggregate()/], [aClass.genNameClassCommand('')/]> [aClass.genNameClassAggregate().toLowerFirst()/]Repository(EventuateAggregateStore eventStore) {
+        return new AggregateRepository<>([aClass.genNameClassAggregate()/].class, eventStore);
+    }
+
+    [aClass.genGeneratedComment()/]
+    @Bean
+    public [aClass.genNameClassService()/] [aClass.genNameClassService().toLowerFirst()/](AggregateRepository<[aClass.genNameClassAggregate()/], [aClass.genNameClassCommand('')/]> [aClass.genNameClassAggregate().toLowerFirst()/]Repository) {
+        return new [aClass.genNameClassService()/]([aClass.genNameClassAggregate().toLowerFirst()/]Repository);
+    }
+}
+[/file]
+[/template]
+
+[template public generateClassWebConfiguration(aClass : Class)]
+[file (aClass.genFilePathClassWebConfiguration(), false)]
+package [aClass.packageValueClassWebConfiguration()/];
+
+import org.springframework.boot.context.embedded.ServletListenerRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.request.RequestContextListener;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+[aClass.genGeneratedComment()/]
+@Configuration
+@ComponentScan
+public class [aClass.genNameClassWebConfiguration()/]  extends WebMvcConfigurerAdapter {
+    [aClass.genGeneratedComment()/]
+    @Bean
+    public ServletListenerRegistrationBean<RequestContextListener> httpRequestContextListener() {
+        return new ServletListenerRegistrationBean<RequestContextListener>(new RequestContextListener());
+    }
+}
+[/file]
+[/template]
+[template public generateClassAggregateWebConfiguration(aClass : Class)]
+[file (aClass.genFilePathClassAggregateWebConfiguration(), false)]
+package [aClass.packageValueClassAggregateWebConfiguration()/];
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+[aClass.renderImportAggregateWebConfiguration()/]
+
+[aClass.genGeneratedComment()/]
+@Configuration
+@ComponentScan
+@Import({[aClass.genNameClassAggregateConfiguration()/].class, [aClass.genNameClassWebConfiguration()/].class})
+public class [aClass.genNameClassAggregateWebConfiguration()/] {
+}
+[/file]
+[/template]

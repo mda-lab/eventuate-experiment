@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.swfactory.ddd</groupId>
+    <artifactId>org.swfactory.ddd.restaurant</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.swfactory.ddd.restaurant</groupId>
+  <artifactId>org.swfactory.ddd.restaurant.restaurant.app</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <organization>
+    <name>SwFactory</name>
+    <url>http://www.swfactory.org</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>SwFactory License</name>
+      <distribution>Internal Use</distribution>
+      <comments />
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>andrea.lambruschini</id>
+      <name>Andrea Lambruschini</name>
+      <email>andrea.lambruschini@swfactory.org</email>
+      <organization>SwFactory</organization>
+      <organizationUrl>http://www.swfactory.org</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>Europe/Rome</timezone>
+    </developer>
+  </developers>
+  <contributors>
+  </contributors>
+  <scm>
+    <connection>scm:git:${gitServerUrl}/ddd/${project.artifactId}.git</connection>
+    <developerConnection>scm:git:${gitServerUrl}/ddd/${project.artifactId}.git</developerConnection>
+    <tag>v${project.version}</tag>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>nexus</id>
+      <name>Releases Repository</name>
+      <url>${releasesRepositoryUrl}</url>
+    </repository>
+    <snapshotRepository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>nexus</id>
+      <name>SnapshotsRepository</name>
+      <url>${snapshotsRepositoryUrl}</url>
+    </snapshotRepository>
+    <site>
+      <id>nexus</id>
+      <url>${mySiteUrl}/com.tim.sdp/${project.artifactId}/${project.version}</url>
+    </site>
+  </distributionManagement>
+  <properties>
+    <springfox-version>2.6.1</springfox-version>
+    <docker.image.prefix>springio</docker.image.prefix>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <java.version>1.8</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <eventuateClientVersion>0.14.0.RELEASE</eventuateClientVersion>
+    <eventuateLocalVersion>0.10.0.RELEASE</eventuateLocalVersion>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-dependencies</artifactId>
+      <version>1.3.5.RELEASE</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.eventuate.local.java</groupId>
+      <artifactId>eventuate-local-java-embedded-cdc-autoconfigure</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.eventuate.local.java</groupId>
+      <artifactId>eventuate-local-java-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.swfactory.ddd.restaurant</groupId>
+      <artifactId>org.swfactory.ddd.restaurant.restaurant.rest</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

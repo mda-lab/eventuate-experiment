@@ -1,0 +1,586 @@
+[comment encoding = UTF-8 /]
+[module typeUtils('http://www.eclipse.org/uml2/5.0.0/UML')]
+
+[import org::swfactory::acceleo::module::ddd::eventuate::properties::properties /]
+[comment][import org::swfactory::acceleo::module::ddd::eventuate::common::associationUtils /][/comment]
+
+[query public isRootModel(aPackage: Package) : Boolean = (aPackage.ancestors(Package)->isEmpty() and aPackage.oclIsTypeOf(Model))/] 
+[query public isModel(aPackage: Package) : Boolean = aPackage.oclIsTypeOf(Model)/]
+
+[**
+ * Use Model Uri as package base
+*/]
+[query public lowerCaseName(aPackage : Package) : String = 
+if (aPackage.isModel()) then
+  aPackage.URI.replace('^.*://', '')
+else
+  aPackage.name.toLowerCase()
+endif
+/]
+
+[**
+ * Expected only one model for each system, but more BoundedContext
+*/]
+[query public rootModelPackageName(aPackage : Package) : String =
+if (aPackage.isRootModel()) then
+    aPackage.lowerCaseName()
+else
+    aPackage.ancestors(Package)->select(aPackage: Package | aPackage.oclIsTypeOf(Model) and aPackage.ancestors()->isEmpty()).lowerCaseName()->first()
+endif
+/]
+[query public rootModelPackagePath(aPackage : Package) : String =
+aPackage.rootModelPackageName().replaceAll('\\.', '/').concat('/')
+/]
+[query public packagePath(aPackage : Package) : String =
+aPackage.packageValue().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValue(aPackage : Package) : String =
+aPackage.ancestors(Package).lowerCaseName()->reverse()->append(aPackage.lowerCaseName()).replaceAll('/', '.')->sep('', '.', '')->toString()
+/]
+[query public genModelQualifiedName(aType : Type) : String =
+aType.getModel().packageValue().concat('.').concat(aType.getModel().name)
+/]
+
+[*******************************************************************************
+ * Class Application Queries and templates
+********************************************************************************/]
+[query public packagePathApplication(aType : Type) : String =
+aType.packageValueApplication().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueApplication(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('application')->sep('', '.', '')->toString()
+/]
+[query public genFilePathApplication(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getApplicationSourceFolder()).concat(aType.packagePathApplication()).concat(aType.genNameApplication()) + '.java'
+/]
+[query public genQualifiedNameApplication(aType : Type) : String =
+aType.packageValueApplication() + '.' + aType.genNameApplication()
+/]
+[query public genNameApplication(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.name + aType.getApplicationSuffix() else aType.javaName() endif
+/]
+[query public getApplicationSuffix(aType : Type) : String =
+'Application'
+/]
+[template public renderImportApplication(aType : Type) ]
+[if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())]
+import [aType.genQualifiedNameClassAggregateWebConfiguration()/];
+import [aType.genQualifiedNameClassSwaggerConfiguration()/];
+[/if]
+[/template]
+
+
+
+[*******************************************************************************
+ * Class Info Queries and templates
+********************************************************************************/]
+[query public packagePathClassInfo(aType : Type) : String =
+aType.packageValueClassInfo().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassInfo(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('infos')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassInfo(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getInfoSourceFolder()).concat(aType.packagePathClassInfo()).concat(aType.genNameClassInfo()) + '.java'
+/]
+[query public genQualifiedNameClassInfo(aType : Type) : String =
+aType.packageValueClassInfo() + '.' + aType.genNameClassInfo()
+/]
+[query public genNameClassInfo(aType : Type) : String =
+if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity()) then aType.name + aType.getInfoSuffix() else aType.javaName() endif
+/]
+[query public getInfoSuffix(aType : Type) : String =
+'Info'
+/]
+
+[template public renderImportsInfo(aClass : Class) ]
+[for (t : Type | aClass.getAllReferencedTypes()) separator('\n')][if (not t.isPrimitiveType())][renderImportInfo(t)/][/if][/for][/template]
+[template public renderImportInfo(aType : Type) ]
+import [if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())][aType.genQualifiedNameClassInfo()/][else][aType.genQualifiedName()/][/if];[/template]
+
+[*******************************************************************************
+ * Class Command Queries and Templates
+********************************************************************************/]
+[query public packagePathClassCommand(aType : Type) : String =
+aType.packageValueClassCommand().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassCommand(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('commands')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassCommand(aType : Type, prefix : String) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getCommandSourceFolder()).concat(aType.packagePathClassCommand()).concat(aType.genNameClassCommand(prefix)) + '.java'
+/]
+[query public genQualifiedNameClassCommand(aType : Type, prefix : String) : String =
+aType.packageValueClassCommand() + '.' + aType.genNameClassCommand(prefix)
+/]
+[query public genNameClassCommand(aType : Type, prefix : String) : String =
+if (aType.isAggregateRoot()) then prefix.toUpperFirst() + aType.name + aType.getCommandSuffix() else aType.javaName() endif
+/]
+[query public getCommandSuffix(aType : Type) : String =
+'Command'
+/]
+
+[template public renderImportsCommand(aClass : Class) ]
+[for (t : Type | aClass.getAllReferencedTypes()) separator('\n')][if (not t.isPrimitiveType())][renderImportCommand(t)/][/if][/for][/template]
+[template public renderImportCommand(aType : Type) ]
+import [if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())][aType.genQualifiedNameClassInfo()/][else][aType.genQualifiedName()/][/if];[/template]
+
+
+[*******************************************************************************
+ * Class Event Queries and Templates
+********************************************************************************/]
+[query public packagePathClassEvent(aType : Type) : String =
+aType.packageValueClassEvent().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassEvent(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('events')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassEvent(aType : Type, prefix : String) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getEventSourceFolder()).concat(aType.packagePathClassEvent()).concat(aType.genNameClassEvent(prefix)) + '.java'
+/]
+[query public genQualifiedNameClassEvent(aType : Type, prefix : String) : String =
+aType.packageValueClassEvent() + '.' + aType.genNameClassEvent(prefix)
+/]
+[query public genNameClassEvent(aType : Type, prefix : String) : String =
+if (aType.isAggregateRoot()) then prefix.toUpperFirst() + aType.name + aType.getEventSuffix() else aType.javaName() endif
+/]
+[query public getEventSuffix(aType : Type) : String =
+'Event'
+/]
+
+[template public renderImportsEvent(aClass : Class) ]
+[for (t : Type | aClass.getAllReferencedTypes()) separator('\n')][if (not t.isPrimitiveType())][renderImportEvent(t)/][/if][/for][/template]
+[template public renderImportEvent(aType : Type) ]
+import [if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())][aType.genQualifiedNameClassInfo()/][else][aType.genQualifiedName()/][/if];[/template]
+
+
+[*******************************************************************************
+ * Class Response Queries and Templates
+********************************************************************************/]
+[query public packagePathClassResponse(aType : Type) : String =
+aType.packageValueClassResponse().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassResponse(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('responses')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassResponse(aType : Type, prefix : String) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getResponseSourceFolder()).concat(aType.packagePathClassResponse()).concat(aType.genNameClassResponse(prefix)) + '.java'
+/]
+[query public genQualifiedNameClassResponse(aType : Type, prefix : String) : String =
+aType.packageValueClassResponse() + '.' + aType.genNameClassResponse(prefix)
+/]
+[query public genNameClassResponse(aType : Type, prefix : String) : String =
+if (aType.isAggregateRoot()) then prefix.toUpperFirst() + aType.name + aType.getResponseSuffix() else aType.javaName() endif
+/]
+[query public getResponseSuffix(aType : Type) : String =
+'Response'
+/]
+[template public renderImportResponse(aType : Type) ]
+import [if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())][aType.genQualifiedNameClassInfo()/][else][aType.genQualifiedName()/][/if];
+[/template]
+
+[*******************************************************************************
+ * Class Service Queries and Templates
+********************************************************************************/]
+[query public packagePathClassService(aType : Type) : String =
+aType.packageValueClassService().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassService(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('services')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassService(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getServiceSourceFolder()).concat(aType.packagePathClassService()).concat(aType.genNameClassService()) + '.java'
+/]
+[query public genQualifiedNameClassService(aType : Type) : String =
+aType.packageValueClassService() + '.' + aType.genNameClassService()
+/]
+[query public genNameClassService(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.name + aType.getServiceSuffix() else aType.javaName() endif
+/]
+[query public getServiceSuffix(aType : Type) : String =
+'Service'
+/]
+
+[template public renderImportsService(aClass : Class) ]
+[for (t : Type | aClass.getAllReferencedTypes()) separator('\n')][if (not t.isPrimitiveType())][renderImportService(t)/][/if][/for][/template]
+[template public renderImportService(aType : Type) ]
+import [if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())][aType.genQualifiedNameClassInfo()/][else][aType.genQualifiedName()/][/if];
+[if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())]
+import [aType.genQualifiedNameClassCommand('Create')/];
+import [aType.genQualifiedNameClassCommand('Update')/];
+import [aType.genQualifiedNameClassCommand('Delete')/];
+import [aType.genQualifiedNameClassCommand('')/];
+import [aType.genQualifiedNameClassAggregate()/];
+[/if]
+[/template]
+
+[*******************************************************************************
+ * Class Aggregate Queries and Templates
+********************************************************************************/]
+[query public packagePathClassAggregate(aType : Type) : String =
+aType.packageValueClassAggregate().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassAggregate(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('aggregates')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassAggregate(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getAggregateSourceFolder()).concat(aType.packagePathClassAggregate()).concat(aType.genNameClassAggregate()) + '.java'
+/]
+[query public genQualifiedNameClassAggregate(aType : Type) : String =
+aType.packageValueClassAggregate() + '.' + aType.genNameClassAggregate()
+/]
+[query public genNameClassAggregate(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.name + aType.getAggregateSuffix() else aType.javaName() endif
+/]
+[query public getAggregateSuffix(aType : Type) : String =
+'Aggregate'
+/]
+[template public renderImportsAggregate(aClass : Class) ]
+[for (t : Type | aClass.getAllReferencedTypes()) separator('\n')][if (not t.isPrimitiveType())][renderImportService(t)/][/if][/for][/template]
+[template public renderImportAggregate(aType : Type) ]
+import [if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())][aType.genQualifiedNameClassInfo()/][else][aType.genQualifiedName()/][/if];
+[if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())]
+import [aType.genQualifiedNameClassCommand('Create')/];
+import [aType.genQualifiedNameClassCommand('Update')/];
+import [aType.genQualifiedNameClassCommand('Delete')/];
+import [aType.genQualifiedNameClassCommand('')/];
+import [aType.genQualifiedNameClassEvent('Created')/];
+import [aType.genQualifiedNameClassEvent('Updated')/];
+import [aType.genQualifiedNameClassEvent('Deleted')/];
+import [aType.genQualifiedNameClassEvent('')/];
+[/if]
+[/template]
+
+[*******************************************************************************
+ * Class AggregateConfiguration Queries and Templates
+********************************************************************************/]
+[query public packagePathClassAggregateConfiguration(aType : Type) : String =
+aType.packageValueClassAggregateConfiguration().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassAggregateConfiguration(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('configurations')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassAggregateConfiguration(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getAggregateConfigurationSourceFolder()).concat(aType.packagePathClassAggregateConfiguration()).concat(aType.genNameClassAggregateConfiguration()) + '.java'
+/]
+[query public genQualifiedNameClassAggregateConfiguration(aType : Type) : String =
+aType.packageValueClassAggregateConfiguration() + '.' + aType.genNameClassAggregateConfiguration()
+/]
+[query public genNameClassAggregateConfiguration(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.name + aType.getAggregateConfigurationSuffix() else aType.javaName() endif
+/]
+[query public getAggregateConfigurationSuffix(aType : Type) : String =
+'AggregateConfiguration'
+/]
+[template public renderImportsAggregateConfiguration(aClass : Class) ]
+[for (t : Type | aClass.getAllReferencedTypes()) separator('\n')][if (not t.isPrimitiveType())][renderImportService(t)/][/if][/for][/template]
+[template public renderImportAggregateConfiguration(aType : Type) ]
+import [if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())][aType.genQualifiedNameClassInfo()/][else][aType.genQualifiedName()/][/if];
+[if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())]
+import [aType.genQualifiedNameClassCommand('')/];
+import [aType.genQualifiedNameClassAggregate()/];
+import [aType.genQualifiedNameClassService()/];
+[/if]
+[/template]
+
+[*******************************************************************************
+ * Class WebConfiguration Queries and Templates
+********************************************************************************/]
+[query public packagePathClassWebConfiguration(aType : Type) : String =
+aType.packageValueClassWebConfiguration().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassWebConfiguration(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('rest')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassWebConfiguration(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getWebConfigurationSourceFolder()).concat(aType.packagePathClassWebConfiguration()).concat(aType.genNameClassWebConfiguration()) + '.java'
+/]
+[query public genQualifiedNameClassWebConfiguration(aType : Type) : String =
+aType.packageValueClassWebConfiguration() + '.' + aType.genNameClassWebConfiguration()
+/]
+[query public genNameClassWebConfiguration(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.getWebConfigurationSuffix() else aType.javaName() endif
+/]
+[query public getWebConfigurationSuffix(aType : Type) : String =
+'WebConfiguration'
+/]
+
+[*******************************************************************************
+ * Class AggregateWebConfiguration Queries and Templates
+********************************************************************************/]
+[query public packagePathClassAggregateWebConfiguration(aType : Type) : String =
+aType.packageValueClassAggregateWebConfiguration().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassAggregateWebConfiguration(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('rest')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassAggregateWebConfiguration(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getAggregateWebConfigurationSourceFolder()).concat(aType.packagePathClassAggregateWebConfiguration()).concat(aType.genNameClassAggregateWebConfiguration()) + '.java'
+/]
+[query public genQualifiedNameClassAggregateWebConfiguration(aType : Type) : String =
+aType.packageValueClassAggregateWebConfiguration() + '.' + aType.genNameClassAggregateWebConfiguration()
+/]
+[query public genNameClassAggregateWebConfiguration(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.name + aType.getAggregateWebConfigurationSuffix() else aType.javaName() endif
+/]
+[query public getAggregateWebConfigurationSuffix(aType : Type) : String =
+'WebConfiguration'
+/]
+[template public renderImportAggregateWebConfiguration(aType : Type) ]
+[if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())]
+import [aType.genQualifiedNameClassAggregateConfiguration()/];
+import [aType.genQualifiedNameClassWebConfiguration()/];
+[/if]
+[/template]
+
+[*******************************************************************************
+ * Class AggregateRestController Queries and Templates
+********************************************************************************/]
+[query public packagePathClassAggregateRestController(aType : Type) : String =
+aType.packageValueClassAggregateRestController().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassAggregateRestController(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('rest')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassAggregateRestController(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getAggregateRestControllerSourceFolder()).concat(aType.packagePathClassAggregateRestController()).concat(aType.genNameClassAggregateRestController()) + '.java'
+/]
+[query public genQualifiedNameClassAggregateRestController(aType : Type) : String =
+aType.packageValueClassAggregateRestController() + '.' + aType.genNameClassAggregateRestController()
+/]
+[query public genNameClassAggregateRestController(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.name + aType.getAggregateRestControllerSuffix() else aType.javaName() endif
+/]
+[query public getAggregateRestControllerSuffix(aType : Type) : String =
+'RestController'
+/]
+[template public renderImportAggregateRestController(aType : Type) ]
+[if (aType.isAggregate() or aType.isAggregateRoot() or aType.isEntity())]
+import [aType.genQualifiedNameClassResponse('Create')/];
+import [aType.genQualifiedNameClassResponse('Delete')/];
+import [aType.genQualifiedNameClassResponse('Update')/];
+import [aType.genQualifiedNameClassService()/];
+import [aType.genQualifiedNameClassInfo()/];
+[/if]
+[/template]
+
+[*******************************************************************************
+ * Class SwaggerConfiguration Queries and Templates
+********************************************************************************/]
+[query public packagePathClassSwaggerConfiguration(aType : Type) : String =
+aType.packageValueClassSwaggerConfiguration().replaceAll('\\.','/').concat('/')
+/]
+[query public packageValueClassSwaggerConfiguration(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse().replaceAll('/', '.')->append('rest')->sep('', '.', '')->toString()
+/]
+[query public genFilePathClassSwaggerConfiguration(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getSwaggerConfigurationSourceFolder()).concat(aType.packagePathClassSwaggerConfiguration()).concat(aType.genNameClassSwaggerConfiguration()) + '.java'
+/]
+[query public genQualifiedNameClassSwaggerConfiguration(aType : Type) : String =
+aType.packageValueClassSwaggerConfiguration() + '.' + aType.genNameClassSwaggerConfiguration()
+/]
+[query public genNameClassSwaggerConfiguration(aType : Type) : String =
+if (aType.isAggregateRoot()) then aType.name + aType.getSwaggerConfigurationSuffix() else aType.javaName() endif
+/]
+[query public getSwaggerConfigurationSuffix(aType : Type) : String =
+'SwaggerConfiguration'
+/]
+
+[**
+ * Support for generic types
+*/]
+[query public packagePath(aType : Type) : String =
+aType.genPackageValue().replaceAll('\\.','/').concat('/')
+/]
+[query public genFilePath(aType : Type) : String =
+aType.getBoundedContextSourceFolder(aType.getBoundedContext().packageValue()).concat(aType.getOtherSourceFolder()) + aType.packagePath() + aType.name + '.java'
+/]
+
+[query public genPackageValue(aType : Type) : String =
+aType.ancestors(Package).lowerCaseName()->reverse()->sep('.')->toString()
+/]
+[query public genQualifiedName(aType : Type) : String =
+aType.genPackageValue().concat('.').concat(aType.name)
+/]
+[query public javaName(aType : Type) : String = 
+if (aType.name.equalsIgnoreCase('Real')) then
+'Double'
+else
+aType.name
+endif
+/]
+
+[query public isPrimitiveType(aType : Type) : Boolean = 
+aType.name.equalsIgnoreCase('Boolean') or
+aType.name.equalsIgnoreCase('String') or
+aType.name.equalsIgnoreCase('Float') or
+aType.name.equalsIgnoreCase('Double') or
+aType.name.equalsIgnoreCase('Real') or
+aType.name.equalsIgnoreCase('Long') or
+aType.name.equalsIgnoreCase('Short') or
+aType.name.equalsIgnoreCase('Integer')
+/]
+
+[query public getAllReferencedTypes(aClass : Class) : Set(Type) = 
+aClass.getOutgoingCompositionsAsProperty().type->asSet()->union(aClass.attribute.type->asSet())->union(aClass.ownedOperation.ownedParameter->asSet().type->asSet())
+/]
+[**
+ * TODO: supportare associazioni n-arie.
+*/]
+[query public getOutgoingCompositionsAsProperty (aType : Type) : Set(Property) = 
+aType.getAssociations()->select(ass : Association | ass.getAppliedStereotypes()->isEmpty()).navigableOwnedEnd->select(prop : Property | prop.type <> aType)->asSet()
+/]
+
+[template public renderCompositeProperties(aClass : Class) ]
+[for (p : Property | aClass.getOutgoingCompositionsAsProperty()) separator('\n')]
+[renderProperty(p)/]
+[/for]
+[/template]
+
+[template public renderProperties(aClass : Class) ]
+[for (p : Property | aClass.attribute) separator('\n')]
+[renderProperty(p)/]
+[/for]
+[/template]
+
+[**
+ * TODO: supportare associazioni n-arie.
+*/]
+[query public getOutgoingCompositions (aType : Type) : Set(Association) = 
+aType.getAssociations()->select(ass : Association | ass.getAppliedStereotypes()->isEmpty())->select(ass : Association | ass.navigableOwnedEnd->exists(end : Property | end.aggregation = AggregationKind::composite))
+/]
+
+[query public getGetterSetterTypeName(aProperty : Property) : String = 
+if ((aProperty.upperBound() = -1) or (aProperty.upperBound() > aProperty.lowerBound())) then
+  'List<'.concat(aProperty.type.javaName()).concat('>')
+else
+  aProperty.type.javaName()
+endif 
+/]
+[**
+ * TODO: supportare i qualifier
+*/]
+[template public renderProperty(aProperty : Property) ]
+[if (not aProperty.owner.oclIsTypeOf(Interface))]
+/**
+* @generated
+*/
+private [aProperty.getGetterSetterTypeName()/] [aProperty.name/];
+[/if]
+/**
+* @generated
+*/
+[aProperty.visibility/] [aProperty.getGetterSetterTypeName()/] get[aProperty.name.toUpperFirst()/]() {
+  return this.[aProperty.name/];
+}
+/**
+* @generated
+*/
+[aProperty.visibility/] void set[aProperty.name.toUpperFirst()/]([aProperty.getGetterSetterTypeName()/] [aProperty.name/]) {
+  this.[aProperty.name/] = [aProperty.name/];
+}
+[/template]
+[**
+ * Specific for Info Classes
+*/]
+[query public getGetterSetterTypeNameInfo(aProperty : Property) : String = 
+if ((aProperty.upperBound() = -1) or (aProperty.upperBound() > aProperty.lowerBound())) then
+  'List<'.concat(aProperty.type.genNameClassInfo()).concat('>')
+else
+  aProperty.type.genNameClassInfo()
+endif 
+/]
+
+[****************************************************************************************
+ * TODO: supportare i qualifier
+ * TODO: templatizzare in base alla categoria sintattica (Info, Command, Event, etc) 
+ * 
+*****************************************************************************************/]
+[template public renderPropertiesInfo(aClass : Class) ]
+[for (p : Property | aClass.attribute) separator('\n')]
+[renderPropertyInfo(p)/]
+[/for]
+[/template]
+[template public renderCompositePropertiesInfo(aClass : Class) ]
+[for (p : Property | aClass.getOutgoingCompositionsAsProperty()) separator('\n')]
+[renderPropertyInfo(p)/]
+[/for]
+[/template]
+[template public renderPropertyInfo(aProperty : Property) ]
+[if (not aProperty.owner.oclIsTypeOf(Interface))]
+/**
+* @generated
+*/
+private [aProperty.getGetterSetterTypeNameInfo()/] [aProperty.name/];
+[/if]
+/**
+* @generated
+*/
+[aProperty.visibility/] [aProperty.getGetterSetterTypeNameInfo()/] get[aProperty.name.toUpperFirst()/]() {
+  return this.[aProperty.name/];
+}
+/**
+* @generated
+*/
+[aProperty.visibility/] void set[aProperty.name.toUpperFirst()/]([aProperty.getGetterSetterTypeNameInfo()/] [aProperty.name/]) {
+  this.[aProperty.name/] = [aProperty.name/];
+}
+[/template]
+
+
+[**
+ * Context Recognition
+*/]
+[query public isBoundedContext(aPackage: Package) : Boolean = 
+aPackage.getAppliedStereotypes()->exists(aSt: Stereotype | aSt.name.equalsIgnoreCase('BoundedContext'))
+/] 
+[query public getBoundedContext(aType: Type) : Package = 
+aType.ancestors(Package)->select(p : Package | p.getAppliedStereotypes()->exists(aSt: Stereotype | aSt.name.equalsIgnoreCase('BoundedContext')))->first()
+/] 
+[query public isAggregateRoot(aType: Type) : Boolean = 
+aType.getAppliedStereotypes()->exists(aSt: Stereotype | aSt.name.equalsIgnoreCase('AggregateRoot'))
+/] 
+[query public isAggregate(aType: Type) : Boolean = 
+aType.getAppliedStereotypes()->exists(aSt: Stereotype | aSt.name.equalsIgnoreCase('Aggregate'))
+/] 
+[query public isEntity(aType: Type) : Boolean = 
+aType.getAppliedStereotypes()->exists(aSt: Stereotype | aSt.name.equalsIgnoreCase('Entity'))
+/] 
+[query public isRepository(aType: Type) : Boolean = 
+aType.getAppliedStereotypes()->exists(aSt: Stereotype | aSt.name.equalsIgnoreCase('Repository'))
+/] 
+[query public isIdentity(aProperty: Property) : Boolean = 
+aProperty.getAppliedStereotypes()->exists(aSt: Stereotype | aSt.name.equalsIgnoreCase('Identity'))
+/] 
+
+[**
+ * Expected only one identity attribute
+// aProperty.getAppliedStereotypes()->select(aSt: Stereotype | aSt.name.equalsIgnoreCase('Identity')).ownedAttribute->select(p : Property | p.name.equalsIgnoreCase('generated'))->asSequence()->first().default.equalsIgnoreCase('true')
+*/]
+[query public isGeneratedIdentity(aProperty: Property) : Boolean = 
+aProperty.getStereotypeApplications()->select(st : EObject | st.eClass().name.equalsIgnoreCase('Identity'))->asSequence()->first().eGet('generated')
+/] 
+
+[template public genCopyrightHeader(aType : Type)]
+/**
+ * Generated by Acceleo 3
+ * All rights reserved.
+ */
+[/template]
+
+[**
+ * Generates the default import block for the given type.
+ * @param aType The type
+ */]
+[template public genDefaultImport(aType : Type)]
+// [protected ('for imports')]
+import java.util.*;
+// [/protected]
+[/template]
+
+[template public genGeneratedComment(aNamedElement : NamedElement)]
+/**
+* @generated
+*/
+[/template]
+

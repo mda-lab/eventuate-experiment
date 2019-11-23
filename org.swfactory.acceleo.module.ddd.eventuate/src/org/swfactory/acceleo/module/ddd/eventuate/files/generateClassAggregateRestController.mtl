@@ -1,0 +1,57 @@
+[comment encoding = UTF-8 /]
+[module generateClassAggregateRestController('http://www.eclipse.org/uml2/5.0.0/UML')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+[template public generateClassAggregateRestController(aClass : Class)]
+[file (aClass.genFilePathClassAggregateRestController(), false)]
+package [aClass.packageValueClassAggregateRestController()/];
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
+import java.util.concurrent.CompletableFuture;
+[aClass.renderImportAggregateRestController()/]
+[comment]TODO: Pluricize or add attribute to AggregateRoot Stereotype for Rest Paths
+[/comment]
+[aClass.genGeneratedComment()/]
+@RestController
+@RequestMapping("/[aClass.name.toLowerCase().concat('s')/]")
+public class [aClass.genNameClassAggregateRestController()/] {
+  private Log logger = LogFactory.getLog([aClass.genNameClassAggregateRestController()/].class);
+  [aClass.genGeneratedComment()/]
+  private [aClass.genNameClassService()/] [aClass.genNameClassService().toLowerFirst()/];
+
+  [aClass.genGeneratedComment()/]
+  @Autowired
+  public [aClass.genNameClassAggregateRestController()/]([aClass.genNameClassService()/] [aClass.genNameClassService().toLowerFirst()/]) {
+    this.[aClass.genNameClassService().toLowerFirst()/] = [aClass.genNameClassService().toLowerFirst()/];
+  }
+
+  [aClass.genGeneratedComment()/]
+  @RequestMapping(method = RequestMethod.POST)
+  public CompletableFuture<[aClass.genNameClassResponse('Create')/]> create[aClass.name/](@RequestBody @Valid [aClass.genNameClassInfo()/] request) {
+	logger.info("##################################### CREATE [aClass.name.toUpperCase()/] ############################");
+    return [aClass.genNameClassService().toLowerFirst()/].create[aClass.name/](request)
+            .thenApply(entityAndEventInfo -> new [aClass.genNameClassResponse('Create')/](entityAndEventInfo.getEntityId()));
+  }
+
+  [aClass.genGeneratedComment()/]
+  @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+  public CompletableFuture<[aClass.genNameClassResponse('Update')/]> update[aClass.name/](@PathVariable("id") String [aClass.name.toLowerFirst()/]Id,
+                                                                      @RequestBody  @Valid [aClass.genNameClassInfo()/] request) {
+	  logger.info("##################################### UPDATE [aClass.name.toUpperCase()/] ############################");
+    return [aClass.genNameClassService().toLowerFirst()/].update[aClass.name/]([aClass.name.toLowerFirst()/]Id, request)
+            .thenApply(entityAndEventInfo -> new [aClass.genNameClassResponse('Update')/](entityAndEventInfo.getEntityVersion().asString()));
+  }
+
+  [aClass.genGeneratedComment()/]
+  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+  public CompletableFuture<[aClass.genNameClassResponse('Delete')/]> deleteRestaurant(@PathVariable("id") String [aClass.name.toLowerFirst()/]Id) {
+	  logger.info("##################################### DELETE [aClass.name.toUpperCase()/] ############################");
+    return [aClass.genNameClassService().toLowerFirst()/].delete[aClass.name/]([aClass.name.toLowerFirst()/]Id).thenApply(entityAndEventInfo -> new [aClass.genNameClassResponse('Delete')/](entityAndEventInfo.getEntityVersion().asString()));
+  }
+}
+[/file]
+[/template]

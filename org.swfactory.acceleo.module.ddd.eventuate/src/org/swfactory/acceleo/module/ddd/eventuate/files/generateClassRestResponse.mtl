@@ -1,0 +1,53 @@
+[comment encoding = UTF-8 /]
+[module generateClassRestResponse('http://www.eclipse.org/uml2/5.0.0/UML')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+[template public generateClassRestResponseId(aClass : Class, prefix : String)]
+[file (aClass.genFilePathClassResponse(prefix), false)]
+package [aClass.packageValueClassResponse()/];
+
+public class [aClass.genNameClassResponse(prefix)/] {
+  private String [aClass.name.toLowerFirst()/]Id;
+
+  public [aClass.genNameClassResponse(prefix)/]() {
+  }
+
+  public [aClass.genNameClassResponse(prefix)/](String [aClass.name.toLowerFirst()/]Id) {
+    this.[aClass.name.toLowerFirst()/]Id = [aClass.name.toLowerFirst()/]Id;
+  }
+
+  public String get[aClass.name/]Id() {
+    return [aClass.name.toLowerFirst()/]Id;
+  }
+
+  public void set[aClass.name/]Id(String [aClass.name.toLowerFirst()/]Id) {
+    this.[aClass.name.toLowerFirst()/]Id = [aClass.name.toLowerFirst()/]Id;
+  }
+}
+[/file]
+[/template]
+
+[template public generateClassRestResponseVersion(aClass : Class, prefix : String)]
+[file (aClass.genFilePathClassResponse(prefix), false)]
+package [aClass.packageValueClassResponse()/];
+
+public class [aClass.genNameClassResponse(prefix)/] {
+  private String version;
+
+  public [aClass.genNameClassResponse(prefix)/]() {
+  }
+
+  public [aClass.genNameClassResponse(prefix)/](String version) {
+    this.version = version;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+}
+[/file]
+[/template]

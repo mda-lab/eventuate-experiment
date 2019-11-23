@@ -1,0 +1,45 @@
+[comment encoding = UTF-8 /]
+[module generateClassService('http://www.eclipse.org/uml2/5.0.0/UML')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+[**
+ * TODO: Identifier è fissato come String (vedere i punti in cui compare 'String id')
+ *       Deve essere calcolato dal tipo inserito nel modello e verificato il supporto con il Repository
+*/]
+[template public generateClassService(aClass : Class)]
+[file (aClass.genFilePathClassService(), false)]
+package [aClass.packageValueClassService()/];
+
+import io.eventuate.AggregateRepository;
+import io.eventuate.EntityWithIdAndVersion;
+import java.util.concurrent.CompletableFuture;
+
+[aClass.renderImportService()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassService()/] {
+    [aClass.genGeneratedComment()/]
+    private final AggregateRepository<[aClass.genNameClassAggregate()/], [aClass.genNameClassCommand('')/]> repository;
+
+    [aClass.genGeneratedComment()/]
+    public [aClass.genNameClassService()/](AggregateRepository<[aClass.genNameClassAggregate()/], [aClass.genNameClassCommand('')/]> repository) {
+        this.repository = repository;
+    }
+
+    [aClass.genGeneratedComment()/]
+    public CompletableFuture<EntityWithIdAndVersion<[aClass.genNameClassAggregate()/]>> create[aClass.name/]([aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/]) {
+        return repository.save(new [aClass.genNameClassCommand('Create')/]([aClass.genNameClassInfo().toLowerFirst()/]));
+    }
+
+    [aClass.genGeneratedComment()/]
+    public CompletableFuture<EntityWithIdAndVersion<[aClass.genNameClassAggregate()/]>> update[aClass.name/](String id, [aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/]) {
+        return repository.update(id, new [aClass.genNameClassCommand('Update')/]([aClass.genNameClassInfo().toLowerFirst()/]));
+    }
+
+    [aClass.genGeneratedComment()/]
+    public CompletableFuture<EntityWithIdAndVersion<[aClass.genNameClassAggregate()/]>> delete[aClass.name/](String id) {
+        return repository.update(id, new [aClass.genNameClassCommand('Delete')/]());
+    }
+}
+[/file]
+[/template]

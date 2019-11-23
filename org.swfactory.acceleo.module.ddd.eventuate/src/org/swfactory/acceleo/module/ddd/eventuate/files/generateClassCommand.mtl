@@ -1,0 +1,92 @@
+[comment encoding = UTF-8 /]
+[module generateClassCommand('http://www.eclipse.org/uml2/5.0.0/UML')]
+[import org::swfactory::acceleo::module::ddd::eventuate::common::typeUtils/]
+
+[template public generateAggregateRootProperty(aClass : Class, prefix : String)]
+[aClass.genGeneratedComment()/]
+private [aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/];
+
+[aClass.genGeneratedComment()/]
+public [aClass.genNameClassCommand(prefix)/]([aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/]) {
+  this.[aClass.genNameClassInfo().toLowerFirst()/] = [aClass.genNameClassInfo().toLowerFirst()/];
+}
+
+[aClass.genGeneratedComment()/]
+public [aClass.genNameClassInfo()/] get[aClass.genNameClassInfo()/]() {
+  return [aClass.genNameClassInfo().toLowerFirst()/];
+}
+
+[aClass.genGeneratedComment()/]
+public void set[aClass.genNameClassInfo()/]([aClass.genNameClassInfo()/] [aClass.genNameClassInfo().toLowerFirst()/]) {
+  this.[aClass.genNameClassInfo().toLowerFirst()/] = [aClass.genNameClassInfo().toLowerFirst()/];
+}
+[/template]
+
+[template public generateCommandInterface(aClass : Class)]
+[file (aClass.genFilePathClassCommand(''), false)]
+package [aClass.packageValueClassCommand()/];
+
+import io.eventuate.Command;
+
+[aClass.genGeneratedComment()/]
+public interface [aClass.genNameClassCommand('')/] extends Command {
+}
+[/file]
+[/template]
+
+[template public generateToStringCommand(aClass : Class)]
+[aClass.genGeneratedComment()/]
+@Override
+public String toString() {
+  return ToStringBuilder.reflectionToString(this);
+}
+[/template]
+[template public generateCreateCommandClass(aClass : Class)]
+[file (aClass.genFilePathClassCommand('Create'), false)]
+package [aClass.packageValueClassCommand()/];
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+[aClass.renderImportCommand()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassCommand('Create')/]  implements [aClass.genNameClassCommand('')/] {
+    [aClass.genGeneratedComment()/]
+    public [aClass.genNameClassCommand('Create')/]() {
+    }
+    [aClass.generateAggregateRootProperty('Create')/]
+    [aClass.generateToStringCommand()/]
+}
+[/file]
+[/template]
+
+[template public generateDeleteCommandClass(aClass : Class)]
+[file (aClass.genFilePathClassCommand('Delete'), false)]
+package [aClass.packageValueClassCommand()/];
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+[aClass.renderImportCommand()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassCommand('Delete')/]  implements [aClass.genNameClassCommand('')/] {
+}
+[/file]
+[/template]
+
+[template public generateUpdateCommandClass(aClass : Class)]
+[file (aClass.genFilePathClassCommand('Update'), false)]
+package [aClass.packageValueClassCommand()/];
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+[aClass.renderImportCommand()/]
+
+[aClass.genGeneratedComment()/]
+public class [aClass.genNameClassCommand('Update')/]  implements [aClass.genNameClassCommand('')/] {
+	[aClass.genGeneratedComment()/]
+    public [aClass.genNameClassCommand('Update')/]() {
+    }
+    [aClass.generateAggregateRootProperty('Update')/]
+    [aClass.generateToStringCommand()/]
+}
+[/file]
+[/template]
+
