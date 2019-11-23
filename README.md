@@ -9,9 +9,9 @@ I used 'eventuate' (from Chris Richardson) as a microservice architecture.
 
 To run the whole build and build process, run the compileAndRun.sh script.
 This script will end with the creation of a docker 'restaurant: latest' image that can be executed using
-<code>
+
+`
   org.swfactory.ddd.restaurant/restaurant/docker/docker-compose.yml up -d
-</code>
+`
 
 Attention: the code is absolutely experimental. Please check the scripts before launching them.
-
